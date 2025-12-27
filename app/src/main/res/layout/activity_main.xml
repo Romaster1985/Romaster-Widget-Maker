@@ -65,6 +65,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- Botón Nuevo Widget -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCreateNew"
                         android:layout_width="match_parent"
@@ -72,12 +73,14 @@
                         android:layout_marginBottom="12dp"
                         android:text="@string/create_new_widget"
                         android:textSize="16sp"
+                        android:textColor="@color/colorOnPrimary"
                         app:icon="@drawable/ic_add"
                         app:iconGravity="textStart"
                         app:iconPadding="12dp"
                         app:iconTint="@color/colorOnPrimary"
-                        style="@style/Widget.Material3.Button.Filled" />
+                        android:backgroundTint="@color/colorPrimary" />
 
+                    <!-- Botón Abrir Proyecto -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnOpenProject"
                         android:layout_width="match_parent"
@@ -85,21 +88,28 @@
                         android:layout_marginBottom="12dp"
                         android:text="@string/open_existing"
                         android:textSize="16sp"
+                        android:textColor="@color/colorPrimary"
                         app:icon="@drawable/ic_folder_open"
                         app:iconGravity="textStart"
                         app:iconPadding="12dp"
-                        style="@style/Widget.Material3.Button.Outlined" />
+                        app:iconTint="@color/colorPrimary"
+                        style="?attr/materialButtonOutlinedStyle"
+                        app:strokeColor="@color/colorPrimary" />
 
+                    <!-- Botón Importar -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnImport"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/import_project"
                         android:textSize="16sp"
+                        android:textColor="@color/colorPrimary"
                         app:icon="@drawable/ic_import"
                         app:iconGravity="textStart"
                         app:iconPadding="12dp"
-                        style="@style/Widget.Material3.Button.Outlined" />
+                        app:iconTint="@color/colorPrimary"
+                        style="?attr/materialButtonOutlinedStyle"
+                        app:strokeColor="@color/colorPrimary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

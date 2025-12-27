@@ -5,6 +5,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -14,5 +15,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RWM"
+rootProject.name = "Romaster-Widget-Maker"
 include(":app")
