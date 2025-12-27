@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme -->
+    <style name="Theme.RWM" parent="Theme.Material3.Dark">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:statusBarColor">@color/colorBackground</item>
+        <item name="android:navigationBarColor">@color/colorBackground</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <!-- Theme for Editor Activity -->
+    <style name="Theme.RWM.Editor" parent="Theme.RWM">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <!-- Theme for Dialogs -->
+    <style name="Theme.RWM.Dialog" parent="Theme.Material3.Dark.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+    </style>
+
+    <!-- Widget preview theme -->
+    <style name="Widget.RWM.Preview" parent="android:Widget">
+        <item name="android:background">@color/colorSurface</item>
+        <item name="android:padding">8dp</item>
+    </style>
+</resources>

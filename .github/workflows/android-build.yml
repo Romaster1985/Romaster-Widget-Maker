@@ -1,0 +1,133 @@
+name: Android Build & Release
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Permite ejecución manual
+
+env:
+  BUILD_TYPE: 'debug'
+  RELEASE_BUILD: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Validate Gradle Wrapper
+      uses: gradle/wrapper-validation-action@v1
+    
+    - name: Setup JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+    
+    - name: Cache Gradle
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+    
+    - name: Build Debug APK
+      run: |
+        ./gradlew assembleDebug
+        echo "APK built successfully!"
+    
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: rwm-debug-apk
+        path: app/build/outputs/apk/debug/*.apk
+        retention-days: 30
+    
+    - name: Build Release AAB
+      if: github.ref == 'refs/heads/main'
+      run: |
+        ./gradlew bundleRelease
+        echo "AAB built successfully!"
+      env:
+        SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+    
+    - name: Upload Release AAB
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: rwm-release-aab
+        path: app/build/outputs/bundle/release/*.aab
+        retention-days: 30
+    
+    - name: Generate Version Info
+      id: version
+      run: |
+        # Obtener versión del build.gradle
+        VERSION_CODE=$(grep -o 'versionCode [0-9]*' app/build.gradle.kts | awk '{print $2}')
+        VERSION_NAME=$(grep -o 'versionName "[^"]*"' app/build.gradle.kts | cut -d'"' -f2)
+        echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+        echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+        echo "build_date=$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
+    
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.version.outputs.version_name }}-${{ github.run_number }}
+        name: RWM v${{ steps.version.outputs.version_name }}
+        body: |
+          # 🚀 Romaster Widget Maker
+          
+          **Build:** ${{ github.run_number }}
+          **Version:** ${{ steps.version.outputs.version_name }} (${{ steps.version.outputs.version_code }})
+          **Fecha:** ${{ steps.version.outputs.build_date }}
+          **Commit:** ${{ github.sha }}
+          
+          ## 📦 Contenido
+          - APK Debug: Para pruebas
+          - AAB Release: Para Google Play
+          
+          ## 🐛 Reportar Issues
+          Si encuentras algún problema, repórtalo en [Issues](https://github.com/${{ github.repository }}/issues).
+        draft: false
+        prerelease: false
+        files: |
+          app/build/outputs/apk/debug/*.apk
+          app/build/outputs/bundle/release/*.aab
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Create Build Summary
+      run: |
+        echo "## 🎉 Build Completo - RWM Widget Maker" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Información del Build" >> $GITHUB_STEP_SUMMARY
+        echo "- **Versión:** ${{ steps.version.outputs.version_name }} (${{ steps.version.outputs.version_code }})" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Fecha:** ${{ steps.version.outputs.build_date }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Artifacts Generados" >> $GITHUB_STEP_SUMMARY
+        echo "1. **APK Debug** - Para pruebas" >> $GITHUB_STEP_SUMMARY
+        echo "2. **AAB Release** - Para publicación" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Enlaces" >> $GITHUB_STEP_SUMMARY
+        echo "- [📥 Descargar APK](#)" >> $GITHUB_STEP_SUMMARY
+        echo "- [📋 Ver cambios](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY

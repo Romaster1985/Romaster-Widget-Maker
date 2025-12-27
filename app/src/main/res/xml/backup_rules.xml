@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="sharedpref" path="."/>
+    <exclude domain="file" path="RWM/Projects"/>
+    <exclude domain="file" path="RWM/Exports"/>
+    <exclude domain="file" path="RWM/Backups"/>
+</full-backup-content>

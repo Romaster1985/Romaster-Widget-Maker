@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF1C1B1F">
+
+    <!-- Aquí se agregarán los componentes dinámicamente -->
+    <TextView
+        android:id="@+id/widget_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Widget RWM 2x2"
+        android:textColor="#FFFFFFFF"
+        android:textSize="12sp"
+        android:layout_margin="8dp" />
+
+</FrameLayout>

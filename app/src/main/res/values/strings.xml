@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">RWM Widget Maker</string>
+    
+    <!-- Main Activity -->
+    <string name="welcome_title">Romaster Widget Maker</string>
+    <string name="welcome_subtitle">Crea widgets personalizados con GIFs animados</string>
+    <string name="create_new_widget">Nuevo Widget</string>
+    <string name="open_existing">Abrir Proyecto</string>
+    <string name="import_project">Importar</string>
+    <string name="settings">Ajustes</string>
+    
+    <!-- Editor -->
+    <string name="editor_title">Editor RWM</string>
+    <string name="save">Guardar</string>
+    <string name="preview">Vista Previa</string>
+    <string name="export">Exportar</string>
+    <string name="undo">Deshacer</string>
+    <string name="redo">Rehacer</string>
+    
+    <!-- Palette -->
+    <string name="palette_gif">GIF Animado</string>
+    <string name="palette_text">Texto</string>
+    <string name="palette_shape">Forma</string>
+    <string name="palette_button">Botón</string>
+    <string name="palette_image">Imagen</string>
+    <string name="palette_progress">Progreso</string>
+    
+    <!-- Inspector -->
+    <string name="inspector_title">Propiedades</string>
+    <string name="property_position">Posición</string>
+    <string name="property_size">Tamaño</string>
+    <string name="property_color">Color</string>
+    <string name="property_text">Texto</string>
+    <string name="property_gif_source">Fuente GIF</string>
+    <string name="property_animation_speed">Velocidad</string>
+    <string name="property_loop_count">Repeticiones</string>
+    
+    <!-- Dialog Messages -->
+    <string name="dialog_save_title">Guardar Proyecto</string>
+    <string name="dialog_save_message">Ingresa un nombre para el widget:</string>
+    <string name="dialog_export_title">Exportar Widget</string>
+    <string name="dialog_export_message">El widget será exportado como archivo .rwmpack</string>
+    <string name="dialog_import_title">Importar Widget</string>
+    <string name="dialog_import_message">Selecciona un archivo .rwmpack</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_saved">Proyecto guardado</string>
+    <string name="toast_exported">Widget exportado</string>
+    <string name="toast_imported">Widget importado</string>
+    <string name="toast_error">Ocurrió un error</string>
+</resources>
