@@ -5,6 +5,10 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
+# Zip4j
+-keep class net.lingala.zip4j.** { *; }
+-dontwarn net.lingala.zip4j.**
+
 # GIF Library
 -keep class pl.droidsonroids.gif.** { *; }
 -dontwarn pl.droidsonroids.gif.**
@@ -25,3 +29,19 @@
 # AndroidX
 -keep class androidx.** { *; }
 -dontwarn androidx.**
+
+# Room
+-keep class * extends androidx.room.RoomDatabase
+-keep class * extends androidx.room.Entity
+
+# Coroutines
+-keep class kotlinx.coroutines.** { *; }
+-dontwarn kotlinx.coroutines.**
+
+# Serialization
+-keep class kotlinx.serialization.** { *; }
+-dontwarn kotlinx.serialization.**
+
+# Coil
+-keep class coil.** { *; }
+-dontwarn coil.**

@@ -18,23 +18,34 @@ Romaster-Widget-Maker/
                     com/
                         romaster/
                             rwm/
+                                LogViewerActivity.kt
                                 MainActivity.kt
+                                ParcelableTypes.kt
                                 RWMApplication.kt
                                 editor/
                                     EditorActivity.kt
                                     WidgetEditorViewModel.kt
-                                    inspector/
-                                        PropertyInspector.kt
-                                    palette/
-                                        ComponentPalette.kt
                                     canvas/
+                                        EditorCanvas.kt
                                         SimpleCanvas.kt
                                     preview/
+                                    layout/
+                                        ButtonPropertiesPanel.kt
+                                        EditorLayout.kt
+                                        GifPropertiesPanel.kt
+                                        ShapePropertiesPanel.kt
                                 projects/
                                     Project.kt
                                     ProjectManager.kt
                                 widgets/
                                     RWMWidgetProvider.kt
+                                    RWMWidgetProvider1x1.kt
+                                    RWMWidgetProvider2x1.kt
+                                    RWMWidgetProvider2x2.kt
+                                    RWMWidgetProvider3x3.kt
+                                    RWMWidgetProvider4x1.kt
+                                    RWMWidgetProvider4x2.kt
+                                    WidgetConfigActivity.kt
                                     WidgetEngine.kt
                                 components/
                                     AnimatedImageComponent.kt
@@ -43,23 +54,29 @@ Romaster-Widget-Maker/
                                     TextComponent.kt
                                     WidgetComponent.kt
                                 animation/
-                                    GifAnimationConteoller.kt
+                                    GifAnimationController.kt
                                 data/
                                     DataRepository.kt
                                     DataSource.kt
-                                    DataSourceManager.kt
                                     FormulaEngine.kt
                                 ui/
                                     theme/
                                         Theme.kt
+                                utils/
+                                    Logger.kt
                 res/
                     play-store-icon.png
                     layout/
                         activity_editor.xml
+                        activity_log_viewer.xml
                         activity_main.xml
                         item_project.xml
+                        widget_1x1.xml
                         widget_2x1.xml
                         widget_2x2.xml
+                        widget_3x3.xml
+                        widget_4x1.xml
+                        widget_4x2.xml
                         widget_error.xml
                         widget_placeholder.xml
                     drawable/
@@ -68,6 +85,7 @@ Romaster-Widget-Maker/
                         ic_folder_open.xml
                         ic_gif_placeholder.xml
                         ic_import.xml
+                        ic_launcher.xml
                         ic_launcher_foreground.xml
                     values/
                         colors.xml
@@ -78,6 +96,12 @@ Romaster-Widget-Maker/
                         data_extraction_rules.xml
                         file_paths.xml
                         gif_paths.xml
+                        rwm_widget_1x1.xml
+                        rwm_widget_2x1.xml
+                        rwm_widget_2x2.xml
+                        rwm_widget_3x3.xml
+                        rwm_widget_4x1.xml
+                        rwm_widget_4x2.xml
                         rwm_widget_info.xml
                     mipmap-anydpi-v26/
                         ic_launcher.xml

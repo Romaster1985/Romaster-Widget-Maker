@@ -10,7 +10,11 @@ import com.romaster.rwm.databinding.ActivityMainBinding
 import com.romaster.rwm.editor.EditorActivity
 import com.romaster.rwm.projects.Project
 import com.romaster.rwm.projects.ProjectManager
+import com.romaster.rwm.utils.Logger
 import java.io.File
+import android.graphics.Color
+import android.widget.Button
+import android.widget.LinearLayout
 
 class MainActivity : AppCompatActivity() {
     
@@ -18,171 +22,284 @@ class MainActivity : AppCompatActivity() {
     private lateinit var projectManager: ProjectManager
     private lateinit var recentProjectsAdapter: RecentProjectsAdapter
     
+    companion object {
+        private const val TAG = "MainActivity"
+        private const val REQUEST_OPEN_PROJECT = 1001
+        private const val REQUEST_IMPORT_PROJECT = 1002
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         
-        setupToolbar()
-        setupProjectManager()
-        setupRecyclerView()
-        setupClickListeners()
-        loadRecentProjects()
+        Logger.info(TAG, "onCreate iniciado")
+        
+        try {
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+            
+            setupToolbar()
+            setupProjectManager()
+            setupRecyclerView()
+            setupClickListeners()
+            loadRecentProjects()
+            
+            Logger.info(TAG, "onCreate completado exitosamente")
+            Logger.info(TAG, "Ruta de logs: ${Logger.getLogFilePath()}")
+            
+            // Mostrar toast con ubicación de logs
+            Toast.makeText(this, "Logs en: Documentos/RWM/Logs", Toast.LENGTH_LONG).show()
+            
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "onCreate")
+            Toast.makeText(this, "Error al iniciar la app. Revisar logs.", Toast.LENGTH_LONG).show()
+        }
     }
     
     private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(true)
+        try {
+            setSupportActionBar(binding.toolbar)
+            supportActionBar?.setDisplayShowTitleEnabled(true)
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "setupToolbar")
+        }
     }
     
     private fun setupProjectManager() {
-        projectManager = ProjectManager(this)
+        try {
+            projectManager = ProjectManager(this)
+            Logger.info(TAG, "ProjectManager inicializado")
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "setupProjectManager")
+        }
     }
     
     private fun setupRecyclerView() {
-        recentProjectsAdapter = RecentProjectsAdapter { project ->
-            openProject(project)
-        }
-        
-        binding.recyclerRecentProjects.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = recentProjectsAdapter
-            setHasFixedSize(true)
+        try {
+            recentProjectsAdapter = RecentProjectsAdapter { project ->
+                openProject(project)
+            }
+            
+            binding.recyclerRecentProjects.apply {
+                layoutManager = LinearLayoutManager(this@MainActivity)
+                adapter = recentProjectsAdapter
+                setHasFixedSize(true)
+            }
+            
+            Logger.debug(TAG, "RecyclerView configurado")
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "setupRecyclerView")
         }
     }
     
     private fun setupClickListeners() {
-        binding.btnCreateNew.setOnClickListener {
-            showCreateNewWidgetDialog()
-        }
-        
-        binding.btnOpenProject.setOnClickListener {
-            openProjectBrowser()
-        }
-        
-        binding.btnImport.setOnClickListener {
-            importProject()
+        try {
+            binding.btnCreateNew.setOnClickListener {
+                Logger.debug(TAG, "Botón Nuevo Widget presionado")
+                showCreateNewWidgetDialog()
+            }
+            
+            binding.btnOpenProject.setOnClickListener {
+                Logger.debug(TAG, "Botón Abrir Proyecto presionado")
+                Toast.makeText(this, "Función en desarrollo", Toast.LENGTH_SHORT).show()
+            }
+            
+            binding.btnImport.setOnClickListener {
+                Logger.debug(TAG, "Botón Importar presionado")
+                Toast.makeText(this, "Función en desarrollo", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "setupClickListeners")
         }
     }
     
     private fun showCreateNewWidgetDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Nuevo Widget")
-            .setMessage("Selecciona el tamaño del widget:")
-            .setItems(arrayOf("1x1", "2x1", "2x2", "4x1", "4x2")) { _, which ->
-                val sizes = arrayOf("1x1", "2x1", "2x2", "4x1", "4x2")
-                createNewProject(sizes[which])
+        try {
+            Logger.debug(TAG, "=== DIÁLOGO CON BOTONES PERSONALIZADOS ===")
+            
+            // Crear layout programáticamente
+            val layout = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                setPadding(50, 30, 50, 30)
+                setBackgroundColor(android.graphics.Color.WHITE)
             }
-            .setNegativeButton("Cancelar", null)
-            .show()
+            
+            val sizes = listOf("1x1", "2x1", "2x2", "3x3", "4x1", "4x2")
+            val labels = listOf(
+                "Pequeño (1x1)", 
+                "Horizontal (2x1)", 
+                "Cuadrado (2x2)", 
+                "Grande (3x3)", 
+                "Ancho (4x1)", 
+                "Extra Grande (4x2)"
+            )
+            
+            labels.forEachIndexed { index, label ->
+                val button = android.widget.Button(this).apply {
+                    text = label
+                    setTextColor(android.graphics.Color.BLACK)
+                    setBackgroundColor(android.graphics.Color.LTGRAY)
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = if (index > 0) 15 else 0
+                        bottomMargin = 15
+                    }
+                    
+                    setOnClickListener {
+                        Logger.debug(TAG, "Botón personalizado clickeado: ${sizes[index]}")
+                        createNewProject(sizes[index])
+                    }
+                }
+                layout.addView(button)
+            }
+            
+            // Crear diálogo
+            val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Seleccionar tamaño")
+                .setView(layout)
+                .setNegativeButton("Cancelar") { d, _ -> d.dismiss() }
+                .create()
+            
+            // Forzar fondo blanco
+            dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.WHITE))
+            
+            dialog.show()
+            Logger.debug(TAG, "Diálogo con botones personalizados mostrado. Botones: ${labels.size}")
+            
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "showCreateNewWidgetDialog - Botones personalizados")
+            
+            // Prueba final: diálogo del sistema nativo
+            showNativeSystemDialog()
+        }
+    }
+    
+    private fun showNativeSystemDialog() {
+        try {
+            Logger.debug(TAG, "=== DIÁLOGO NATIVO DEL SISTEMA ===")
+            
+            android.app.AlertDialog.Builder(this)
+                .setTitle("Diálogo nativo")
+                .setMessage("¿Funciona este diálogo nativo?")
+                .setPositiveButton("SÍ") { dialog, _ ->
+                    Logger.debug(TAG, "Diálogo nativo - Sí presionado")
+                    createNewProject("2x2")
+                    dialog.dismiss()
+                }
+                .setNegativeButton("NO") { dialog, _ ->
+                    Logger.debug(TAG, "Diálogo nativo - No presionado")
+                    dialog.dismiss()
+                }
+                .show()
+                
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "showNativeSystemDialog")
+            
+            // Error crítico - algo está mal con el sistema de diálogos
+            Logger.error(TAG, "ERROR CRÍTICO: Ningún tipo de diálogo funciona")
+            
+            // Navegar directamente
+            createNewProject("2x2")
+        }
     }
     
     private fun createNewProject(size: String) {
-        val textInputLayout = com.google.android.material.textfield.TextInputLayout(this).apply {
-            hint = "Mi Widget"
-            setBoxBackgroundMode(com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE)
-            addView(com.google.android.material.textfield.TextInputEditText(context).apply {
-                id = android.R.id.text1
-            })
-        }
-        
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Nombre del Widget")
-            .setMessage("Ingresa un nombre para tu widget:")
-            .setView(textInputLayout)
-            .setPositiveButton("Crear") { dialog, _ ->
-                // Obtener el diálogo y luego findViewById
-                val alertDialog = dialog as androidx.appcompat.app.AlertDialog
-                val input = alertDialog.findViewById<com.google.android.material.textfield.TextInputEditText>(android.R.id.text1)
-                val projectName = input?.text?.toString()?.trim() ?: "Mi Widget"
-                
-                if (projectName.isNotEmpty()) {
-                    val project = projectManager.createProject(projectName, size)
-                    openEditor(project)
-                } else {
-                    Toast.makeText(this, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show()
-                }
+        try {
+            val textInputLayout = com.google.android.material.textfield.TextInputLayout(this).apply {
+                hint = "Mi Widget"
+                setBoxBackgroundMode(com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE)
+                addView(com.google.android.material.textfield.TextInputEditText(context).apply {
+                    id = android.R.id.text1
+                    setText("Mi Widget ${System.currentTimeMillis() % 1000}")
+                })
             }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }
-    
-    private fun openProjectBrowser() {
-        // Implementar selector de archivos para proyectos .rwmpack
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "*/*"
-            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/zip", "application/x-rwm"))
+            
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Nombre del Widget")
+                .setMessage("Ingresa un nombre para tu widget:")
+                .setView(textInputLayout)
+                .setPositiveButton("Crear") { dialog, _ ->
+                    try {
+                        val alertDialog = dialog as androidx.appcompat.app.AlertDialog
+                        val input = alertDialog.findViewById<com.google.android.material.textfield.TextInputEditText>(android.R.id.text1)
+                        val projectName = input?.text?.toString()?.trim() ?: "Mi Widget"
+                        
+                        if (projectName.isNotEmpty()) {
+                            Logger.info(TAG, "Creando proyecto: $projectName, tamaño: $size")
+                            val project = projectManager.createProject(projectName, size)
+                            openEditor(project)
+                        } else {
+                            Toast.makeText(this, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Logger.logException(TAG, e, "createNewProject.dialog")
+                        Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "createNewProject")
         }
-        
-        startActivityForResult(intent, REQUEST_OPEN_PROJECT)
-    }
-    
-    private fun importProject() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-            type = "*/*"
-            addCategory(Intent.CATEGORY_OPENABLE)
-            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/zip", "application/x-rwm"))
-        }
-        
-        startActivityForResult(intent, REQUEST_IMPORT_PROJECT)
     }
     
     private fun openProject(project: Project) {
-        openEditor(project)
+        try {
+            Logger.debug(TAG, "Abriendo proyecto: ${project.name}")
+            openEditor(project)
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "openProject")
+        }
     }
     
     private fun openEditor(project: Project) {
-        val intent = Intent(this, EditorActivity::class.java).apply {
-            putExtra("extra_project_id", project.id)
-            putExtra("extra_project_name", project.name)
+        try {
+            Logger.info(TAG, "Abriendo editor para proyecto: ${project.name}")
+            val intent = Intent(this, EditorActivity::class.java).apply {
+                putExtra("extra_project_id", project.id)
+                putExtra("extra_project_name", project.name)
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "openEditor")
+            Toast.makeText(this, "No se pudo abrir el editor", Toast.LENGTH_SHORT).show()
         }
-        startActivity(intent)
     }
     
     private fun loadRecentProjects() {
-        val projects = projectManager.getRecentProjects(10)
-        recentProjectsAdapter.submitList(projects)
+        try {
+            val projects = projectManager.getRecentProjects(10)
+            recentProjectsAdapter.submitList(projects)
+            Logger.info(TAG, "Cargados ${projects.size} proyectos recientes")
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "loadRecentProjects")
+        }
     }
     
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         
         if (resultCode == RESULT_OK && data != null) {
-            when (requestCode) {
-                REQUEST_OPEN_PROJECT -> {
-                    data.data?.let { uri ->
-                        try {
-                            val project = projectManager.openProject(uri)
-                            openEditor(project)
-                        } catch (e: Exception) {
-                            Toast.makeText(this, "Error al abrir el proyecto", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-                REQUEST_IMPORT_PROJECT -> {
-                    data.data?.let { uri ->
-                        try {
-                            val project = projectManager.importProject(uri)
-                            openEditor(project)
-                            Toast.makeText(this, "Proyecto importado", Toast.LENGTH_SHORT).show()
-                        } catch (e: Exception) {
-                            Toast.makeText(this, "Error al importar el proyecto", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
+            Logger.debug(TAG, "onActivityResult: requestCode=$requestCode")
+            // TODO: Implementar cuando esté listo
         }
     }
     
     override fun onResume() {
         super.onResume()
+        Logger.debug(TAG, "onResume")
         loadRecentProjects()
     }
     
-    companion object {
-        private const val REQUEST_OPEN_PROJECT = 1001
-        private const val REQUEST_IMPORT_PROJECT = 1002
+    override fun onPause() {
+        super.onPause()
+        Logger.debug(TAG, "onPause")
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        Logger.info(TAG, "onDestroy")
     }
 }
 
@@ -191,34 +308,51 @@ class RecentProjectsAdapter(
     private val onProjectClick: (Project) -> Unit
 ) : androidx.recyclerview.widget.ListAdapter<Project, RecentProjectsAdapter.ViewHolder>(ProjectDiffCallback()) {
     
+    companion object {
+        private const val TAG = "RecentProjectsAdapter"
+    }
+    
     class ViewHolder(
         private val binding: com.romaster.rwm.databinding.ItemProjectBinding,
         private val onProjectClick: (Project) -> Unit
     ) : androidx.recyclerview.widget.RecyclerView.ViewHolder(binding.root) {
         
         fun bind(project: Project) {
-            binding.textProjectName.text = project.name
-            binding.textProjectDate.text = android.text.format.DateFormat
-                .getDateFormat(binding.root.context)
-                .format(project.createdAt)
-            
-            binding.root.setOnClickListener {
-                onProjectClick(project)
+            try {
+                binding.textProjectName.text = project.name
+                binding.textProjectDate.text = android.text.format.DateFormat
+                    .getDateFormat(binding.root.context)
+                    .format(project.createdAt)
+                
+                binding.root.setOnClickListener {
+                    onProjectClick(project)
+                }
+            } catch (e: Exception) {
+                Logger.logException(TAG, e, "ViewHolder.bind")
             }
         }
     }
     
     override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ViewHolder {
-        val binding = com.romaster.rwm.databinding.ItemProjectBinding.inflate(
-            android.view.LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return ViewHolder(binding, onProjectClick)
+        return try {
+            val binding = com.romaster.rwm.databinding.ItemProjectBinding.inflate(
+                android.view.LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+            ViewHolder(binding, onProjectClick)
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "onCreateViewHolder")
+            throw e
+        }
     }
     
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        try {
+            holder.bind(getItem(position))
+        } catch (e: Exception) {
+            Logger.logException(TAG, e, "onBindViewHolder")
+        }
     }
 }
 

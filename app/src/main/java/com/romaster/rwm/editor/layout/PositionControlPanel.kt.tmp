@@ -1,0 +1,88 @@
+package com.romaster.rwm.editor.layout
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun PositionControlPanel(
+    x: Float,
+    y: Float,
+    onXChanged: (Float) -> Unit,
+    onYChanged: (Float) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(
+            text = "Posición",
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
+        )
+        
+        // Control X
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "X:",
+                    color = Color(0xFFE6E1E5),
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = "${x.toInt()}px",
+                    color = Color(0xFF00BCD4),
+                    fontSize = 12.sp
+                )
+            }
+            
+            Slider(
+                value = x,
+                onValueChange = onXChanged,
+                valueRange = 0f..500f,
+                modifier = Modifier.fillMaxWidth(),
+                colors = SliderDefaults.colors(
+                    thumbColor = Color(0xFF00BCD4),
+                    activeTrackColor = Color(0xFF00BCD4),
+                    inactiveTrackColor = Color(0xFF49454F)
+                )
+            )
+        }
+        
+        // Control Y
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Y:",
+                    color = Color(0xFFE6E1E5),
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = "${y.toInt()}px",
+                    color = Color(0xFF00BCD4),
+                    fontSize = 12.sp
+                )
+            }
+            
+            Slider(
+                value = y,
+                onValueChange = onYChanged,
+                valueRange = 0f..500f,
+                modifier = Modifier.fillMaxWidth(),
+                colors = SliderDefaults.colors(
+                    thumbColor = Color(0xFF00BCD4),
+                    activeTrackColor = Color(0xFF00BCD4),
+                    inactiveTrackColor = Color(0xFF49454F)
+                )
+            )
+        }
+    }
+}

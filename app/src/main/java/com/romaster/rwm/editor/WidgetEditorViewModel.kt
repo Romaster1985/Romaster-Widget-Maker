@@ -17,15 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
-
-data class EditorUiState(
-    val project: Project? = null,
-    val components: List<WidgetComponent> = emptyList(),
-    val selectedComponent: WidgetComponent? = null,
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
+import java.util.*
 
 class WidgetEditorViewModel(
     application: Application,
@@ -37,8 +29,6 @@ class WidgetEditorViewModel(
     val uiState: StateFlow<EditorUiState> = _uiState.asStateFlow()
     
     private val projectManager = ProjectManager(application)
-    private val componentHistory = mutableListOf<List<WidgetComponent>>()
-    private var historyIndex = -1
     
     init {
         if (projectId.isNotEmpty()) {
@@ -61,7 +51,6 @@ class WidgetEditorViewModel(
                         isLoading = false
                     )
                 }
-                saveHistory()
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -90,17 +79,20 @@ class WidgetEditorViewModel(
             it.copy(project = project, components = emptyList())
         }
         
-        saveHistory()
+        saveProject()
     }
     
     fun importGifAnimation(uri: Uri) {
         val componentId = UUID.randomUUID().toString()
-        val gifComponent = AnimatedImageComponent(
+        val gifComponent = GifButtonComponent(
             id = componentId,
             position = ParcelablePosition(100f, 100f),
             size = ParcelableSize(200f, 200f),
             zIndex = _uiState.value.components.size,
-            gifUri = uri.toString()
+            gifUri = uri.toString(),
+            playOnce = true,
+            speed = 1.0f,
+            autoStart = false
         )
         
         addComponent(gifComponent)
@@ -113,7 +105,7 @@ class WidgetEditorViewModel(
             position = ParcelablePosition(100f, 100f),
             size = ParcelableSize(200f, 60f),
             zIndex = _uiState.value.components.size,
-            text = "Texto",
+            text = "Texto editable",
             fontSize = 24f,
             color = "#FFFFFFFF"
         )
@@ -125,8 +117,8 @@ class WidgetEditorViewModel(
         val componentId = UUID.randomUUID().toString()
         val shapeComponent = ShapeComponent(
             id = componentId,
-            position = ParcelablePosition(100f, 100f),
-            size = ParcelableSize(200f, 200f),
+            position = ParcelablePosition(150f, 150f),
+            size = ParcelableSize(150f, 150f),
             zIndex = _uiState.value.components.size,
             shapeType = SHAPE_RECTANGLE,
             color = "#FF6750A4",
@@ -140,7 +132,7 @@ class WidgetEditorViewModel(
         val componentId = UUID.randomUUID().toString()
         val buttonComponent = ButtonComponent(
             id = componentId,
-            position = ParcelablePosition(100f, 100f),
+            position = ParcelablePosition(200f, 200f),
             size = ParcelableSize(150f, 60f),
             zIndex = _uiState.value.components.size,
             text = "Botón",
@@ -159,7 +151,6 @@ class WidgetEditorViewModel(
                 selectedComponent = component
             )
         }
-        saveHistory()
         saveProject()
     }
     
@@ -168,25 +159,19 @@ class WidgetEditorViewModel(
         _uiState.update { it.copy(selectedComponent = component) }
     }
     
-    fun moveComponent(componentId: String, newPosition: ParcelablePosition) {
+    fun moveComponent(componentId: String, deltaX: Float, deltaY: Float) {
         updateComponent(componentId) { component ->
+            val newPosition = ParcelablePosition(
+                x = component.position.x + deltaX,
+                y = component.position.y + deltaY
+            )
+            
             when (component) {
                 is AnimatedImageComponent -> component.copy(position = newPosition)
                 is TextComponent -> component.copy(position = newPosition)
                 is ShapeComponent -> component.copy(position = newPosition)
                 is ButtonComponent -> component.copy(position = newPosition)
-                else -> component
-            }
-        }
-    }
-    
-    fun resizeComponent(componentId: String, newSize: ParcelableSize) {
-        updateComponent(componentId) { component ->
-            when (component) {
-                is AnimatedImageComponent -> component.copy(size = newSize)
-                is TextComponent -> component.copy(size = newSize)
-                is ShapeComponent -> component.copy(size = newSize)
-                is ButtonComponent -> component.copy(size = newSize)
+                is GifButtonComponent -> component.copy(position = newPosition)
                 else -> component
             }
         }
@@ -195,34 +180,13 @@ class WidgetEditorViewModel(
     fun updateComponentProperty(componentId: String, property: String, value: Any) {
         updateComponent(componentId) { component ->
             when (component) {
-                is AnimatedImageComponent -> updateAnimatedImageProperty(component, property, value)
                 is TextComponent -> updateTextProperty(component, property, value)
                 is ShapeComponent -> updateShapeProperty(component, property, value)
                 is ButtonComponent -> updateButtonProperty(component, property, value)
+                is AnimatedImageComponent -> updateAnimatedImageProperty(component, property, value)
+                is GifButtonComponent -> updateGifButtonProperty(component, property, value)
                 else -> component
             }
-        }
-    }
-    
-    private fun updateAnimatedImageProperty(
-        component: AnimatedImageComponent,
-        property: String,
-        value: Any
-    ): AnimatedImageComponent {
-        return when (property) {
-            "gifUri" -> component.copy(gifUri = value as String)
-            "playMode" -> {
-                val playMode = when (value) {
-                    is PlayMode -> value.name
-                    is String -> value
-                    else -> PLAY_ONCE
-                }
-                component.copy(playMode = playMode)
-            }
-            "speed" -> component.copy(speed = value as Float)
-            "loopCount" -> component.copy(loopCount = value as Int)
-            "autoStart" -> component.copy(autoStart = value as Boolean)
-            else -> component
         }
     }
     
@@ -235,14 +199,6 @@ class WidgetEditorViewModel(
             "text" -> component.copy(text = value as String)
             "fontSize" -> component.copy(fontSize = value as Float)
             "color" -> component.copy(color = value as String)
-            "textAlignment" -> {
-                val alignment = when (value) {
-                    is TextAlignment -> value.name
-                    is String -> value
-                    else -> TEXT_START
-                }
-                component.copy(textAlignment = alignment)
-            }
             else -> component
         }
     }
@@ -255,14 +211,6 @@ class WidgetEditorViewModel(
         return when (property) {
             "color" -> component.copy(color = value as String)
             "cornerRadius" -> component.copy(cornerRadius = value as Float)
-            "shapeType" -> {
-                val shapeType = when (value) {
-                    is ShapeType -> value.name
-                    is String -> value
-                    else -> SHAPE_RECTANGLE
-                }
-                component.copy(shapeType = shapeType)
-            }
             else -> component
         }
     }
@@ -277,6 +225,30 @@ class WidgetEditorViewModel(
             "backgroundColor" -> component.copy(backgroundColor = value as String)
             "textColor" -> component.copy(textColor = value as String)
             "cornerRadius" -> component.copy(cornerRadius = value as Float)
+            else -> component
+        }
+    }
+    
+    private fun updateAnimatedImageProperty(
+        component: AnimatedImageComponent,
+        property: String,
+        value: Any
+    ): AnimatedImageComponent {
+        return when (property) {
+            "speed" -> component.copy(speed = value as Float)
+            else -> component
+        }
+    }
+    
+    private fun updateGifButtonProperty(
+        component: GifButtonComponent,
+        property: String,
+        value: Any
+    ): GifButtonComponent {
+        return when (property) {
+            "speed" -> component.copy(speed = value as Float)
+            "playOnce" -> component.copy(playOnce = value as Boolean)
+            "autoStart" -> component.copy(autoStart = value as Boolean)
             else -> component
         }
     }
@@ -306,47 +278,10 @@ class WidgetEditorViewModel(
             )
         }
         
-        saveHistory()
         saveProject()
     }
     
-    private fun saveHistory() {
-        val currentComponents = _uiState.value.components
-        
-        // Si estamos en medio del historial, eliminamos el futuro
-        if (historyIndex < componentHistory.size - 1) {
-            componentHistory.subList(historyIndex + 1, componentHistory.size).clear()
-        }
-        
-        componentHistory.add(currentComponents)
-        historyIndex++
-        
-        // Limitar historial a 50 estados
-        if (componentHistory.size > 50) {
-            componentHistory.removeAt(0)
-            historyIndex--
-        }
-    }
-    
-    fun undo() {
-        if (historyIndex > 0) {
-            historyIndex--
-            val previousComponents = componentHistory[historyIndex]
-            _uiState.update { it.copy(components = previousComponents) }
-            saveProject()
-        }
-    }
-    
-    fun redo() {
-        if (historyIndex < componentHistory.size - 1) {
-            historyIndex++
-            val nextComponents = componentHistory[historyIndex]
-            _uiState.update { it.copy(components = nextComponents) }
-            saveProject()
-        }
-    }
-    
-    private fun saveProject() {
+    fun saveProject() {
         viewModelScope.launch {
             _uiState.value.project?.let { project ->
                 val updatedProject = project.copy(
@@ -358,6 +293,7 @@ class WidgetEditorViewModel(
                 
                 try {
                     projectManager.saveProject(updatedProject)
+                    _uiState.update { it.copy(project = updatedProject) }
                 } catch (e: Exception) {
                     _uiState.update { it.copy(error = "Error al guardar: ${e.message}") }
                 }
@@ -369,6 +305,7 @@ class WidgetEditorViewModel(
         _uiState.update { it.copy(error = null) }
     }
     
+    // ¡¡¡ESTE ES EL FACTORY QUE FALTA!!!
     companion object {
         class Factory(
             private val application: Application,

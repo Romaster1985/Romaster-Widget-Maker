@@ -157,7 +157,7 @@ class ProjectManager(private val context: Context) {
         return importProject(uri) // Por ahora es lo mismo
     }
     
-    private fun createProjectDirectory(project: Project): File {
+    internal fun createProjectDirectory(project: Project): File {
         val dirName = "${sanitizeFileName(project.name)}_${project.id.take(8)}"
         val projectDir = File(baseDir, dirName)
         

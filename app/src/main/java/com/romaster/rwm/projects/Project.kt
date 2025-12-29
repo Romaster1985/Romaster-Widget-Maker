@@ -48,6 +48,7 @@ data class Project(
                         "1x1" -> 200
                         "2x1" -> 400
                         "2x2" -> 400
+                        "3x3" -> 600  // Nuevo tamaño
                         "4x1" -> 800
                         "4x2" -> 800
                         else -> 400
@@ -56,6 +57,7 @@ data class Project(
                         "1x1" -> 200
                         "2x1" -> 200
                         "2x2" -> 400
+                        "3x3" -> 600  // Nuevo tamaño
                         "4x1" -> 200
                         "4x2" -> 400
                         else -> 200
